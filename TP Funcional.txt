@@ -1,0 +1,17 @@
+TP Funcional 2018 - Microprocesador - Entrega
+Punto 2
+
+(nop.nop.nop) xt8088
+
+Punto 3
+
+falta el primero
+swap fp20
+(add.(lodv 22).swap.(lodv 10)) fp20
+
+Punto 4
+
+str 2 5 at8086
+lod 2 xt8088
+(divide.(lod 1).swap.(lod 2).(str 2 0).(str 1 2)) xt8088
+(divide.(lod 1).swap.(lod 2).(str 2 4).(str 1 12)) xt8088
