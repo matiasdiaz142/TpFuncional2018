@@ -36,9 +36,9 @@ add micro = aumentarProgramCounter micro{acumuladorA = acumuladorB micro + acumu
 2. Desde la consola, modele un programa que intente dividir 2 por 0.
 -}
 
-{-
 divide micro | acumuladorB micro==0 = aumentarProgramCounter micro{mensajeError = "DIVISION BY ZERO"}
-		  | otherwise = aumentarProgramCounter micro{acumuladorA = acumuladorB micro / acumuladorA micro}{acumuladorB = 0}
--}
+		     | otherwise = aumentarProgramCounter micro{acumuladorA = div (acumuladorA micro) (acumuladorB micro)}{acumuladorB = 0}
+
 str addr val micro = aumentarProgramCounter micro{memoria = take (addr - 1) (memoria micro) ++ [val] ++ drop addr (memoria micro)}
 lod addr micro = aumentarProgramCounter micro{acumuladorA = (!!) (memoria micro) (addr-1)}
+--4.2 Desde la consola el programa seria: (divide.(lod 1).swap.(lod 2).(str 2 0).(str 1 2)) xt8088
