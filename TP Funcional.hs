@@ -10,6 +10,8 @@ data Micro = Micro {
 } deriving (Show)
 
 xt8088 = Micro [] 0 0 0 ""
+fp20 = Micro [] 7 24 0 ""
+at8086 = Micro [1..20] 0 0 0 ""
 
 --Punto 2
 
@@ -18,7 +20,7 @@ xt8088 = Micro [] 0 0 0 ""
 -}
 aumentarProgramCounter micro = micro{programCounter=programCounter micro + 1}
 nop micro = aumentarProgramCounter micro
---2.2 El programa en consola seria: (nop.nop.nop)
+--2.2 El programa en consola seria: (nop.nop.nop) xt8088
 --Interviene el concepto de Composicion
 
 --Punto 3
@@ -26,7 +28,7 @@ nop micro = aumentarProgramCounter micro
 lodv valor micro = aumentarProgramCounter micro{acumuladorA = valor}
 swap micro = aumentarProgramCounter micro{acumuladorA = acumuladorB micro}{acumuladorB = acumuladorA micro}
 add micro = aumentarProgramCounter micro{acumuladorA = acumuladorB micro + acumuladorA micro}{acumuladorB = 0}
---3.2 El programa seria: (add.(lodv 22).swap.(lodv 10))
+--3.2 El programa seria: (add.(lodv 22).swap.(lodv 10)) fp20
 
 --Punto 4
 {-
@@ -38,3 +40,4 @@ add micro = aumentarProgramCounter micro{acumuladorA = acumuladorB micro + acumu
 divide micro | acumuladorB micro==0 = aumentarProgramCounter micro{mensajeError = "DIVISION BY ZERO"}
 		  | otherwise = aumentarProgramCounter micro{acumuladorA = acumuladorB micro / acumuladorA micro}{acumuladorB = 0}
 -}
+str addr val micro = micro{memoria = take (addr - 1) (memoria micro) ++ [val] ++ drop addr (memoria micro)}
