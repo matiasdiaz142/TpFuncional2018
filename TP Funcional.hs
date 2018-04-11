@@ -9,7 +9,7 @@ data Micro = Micro {
 	mensajeError :: String	
 } deriving (Show)
 
-xt8088 = Micro [] 0 0 0 ""
+xt8088 = Micro (replicate 1024 0) 0 0 0 ""
 fp20 = Micro [] 7 24 0 ""
 at8086 = Micro [1..20] 0 0 0 ""
 
@@ -40,4 +40,5 @@ add micro = aumentarProgramCounter micro{acumuladorA = acumuladorB micro + acumu
 divide micro | acumuladorB micro==0 = aumentarProgramCounter micro{mensajeError = "DIVISION BY ZERO"}
 		  | otherwise = aumentarProgramCounter micro{acumuladorA = acumuladorB micro / acumuladorA micro}{acumuladorB = 0}
 -}
-str addr val micro = micro{memoria = take (addr - 1) (memoria micro) ++ [val] ++ drop addr (memoria micro)}
+str addr val micro = aumentarProgramCounter micro{memoria = take (addr - 1) (memoria micro) ++ [val] ++ drop addr (memoria micro)}
+lod addr micro = aumentarProgramCounter micro{acumuladorA = (!!) (memoria micro) (addr-1)}
