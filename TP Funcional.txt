@@ -5,7 +5,7 @@ Punto 2
 
 Punto 3
 
-falta el primero
+(falta este test que no lo entiendo)
 swap fp20
 (add.(lodv 22).swap.(lodv 10)) fp20
 
