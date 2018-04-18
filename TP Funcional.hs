@@ -1,44 +1,47 @@
---TP Funcional 2018 - Microprocesador - Entrega
---Punto 1
+module TP where
 
-data Micro = Micro {
+import Text.Show.Functions
+
+-- Modelado de Datos 
+-- Punto 1
+data Micro = Micro{
 	memoria :: [Int],
 	acumuladorA :: Int,
 	acumuladorB :: Int,
 	programCounter :: Int,
-	mensajeError :: String	
-} deriving (Show)
+	mensajeError :: String
+}deriving (Show)
 
-xt8088 = Micro (replicate 1024 0) 0 0 0 ""
-fp20 = Micro [] 7 24 0 ""
-at8086 = Micro [1..20] 0 0 0 ""
+-- Punto 2: Se probo haciendo (nop.nop.nop)xt8088, se uso composicion
+xt8088 = Micro {memoria = (replicate 1024 0),acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = ""} 
+fp20   = Micro {memoria = [],acumuladorA = 7,acumuladorB = 24,programCounter = 0,mensajeError = ""}
+at8086 = Micro {memoria = [1..20],acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = ""}
 
---Punto 2
+nop :: Micro -> Micro
+nop micro = micro{programCounter = sumarProgramCounter micro}
+ 
+--Punto 3: Se probo haciendo (add.(lodv 22).swap.(lodv 10))fp20 se uso composicion
+lodv :: Int -> Micro -> Micro
+lodv val micro = micro{acumuladorA = val, programCounter =  sumarProgramCounter micro} 
 
-{- Cree la funcion aumentarProgramCounter, porque en cada instruccion se aumenta el programCounter
-   y de esta forma no se repetia el codigo, aunque nose si estara bien.
--}
-aumentarProgramCounter micro = micro{programCounter=programCounter micro + 1}
-nop micro = aumentarProgramCounter micro
---2.2 El programa en consola seria: (nop.nop.nop) xt8088
---Interviene el concepto de Composicion
+swap :: Micro -> Micro 
+swap micro = micro {acumuladorA = acumuladorB micro, acumuladorB = acumuladorA micro, programCounter = sumarProgramCounter micro}
 
---Punto 3
+add :: Micro -> Micro
+add micro = micro{acumuladorA = acumuladorA micro + acumuladorB micro, acumuladorB = 0, programCounter = sumarProgramCounter micro}
 
-lodv valor micro = aumentarProgramCounter micro{acumuladorA = valor}
-swap micro = aumentarProgramCounter micro{acumuladorA = acumuladorB micro}{acumuladorB = acumuladorA micro}
-add micro = aumentarProgramCounter micro{acumuladorA = acumuladorB micro + acumuladorA micro}{acumuladorB = 0}
---3.2 El programa seria: (add.(lodv 22).swap.(lodv 10)) fp20
+sumarProgramCounter :: Micro -> Int
+sumarProgramCounter micro = (programCounter micro) + 1
 
---Punto 4
-{-
-1. Modelar la instrucción DIV , STR y LOD.
-2. Desde la consola, modele un programa que intente dividir 2 por 0.
--}
+--Punto 4  Se probo haciendo (divide.(lod 1).swap.(lod 2).(str 2 0).(str 1 2)) xt8088 
 
-divide micro | acumuladorB micro==0 = aumentarProgramCounter micro{mensajeError = "DIVISION BY ZERO"}
-		     | otherwise = aumentarProgramCounter micro{acumuladorA = div (acumuladorA micro) (acumuladorB micro)}{acumuladorB = 0}
+divide :: Micro -> Micro
+divide micro  
+	| acumuladorB micro == 0 = micro{programCounter = sumarProgramCounter micro, mensajeError = "Division By Zero"}
+	| otherwise = micro{acumuladorA = div (acumuladorA micro)(acumuladorB micro), acumuladorB = 0, programCounter = sumarProgramCounter micro}
+		
+str :: Int -> Int -> Micro -> Micro
+str addr val micro = micro {memoria = take (addr - 1) (memoria micro) ++ [val] ++ drop addr(memoria micro), programCounter = sumarProgramCounter micro}
 
-str addr val micro = aumentarProgramCounter micro{memoria = take (addr - 1) (memoria micro) ++ [val] ++ drop addr (memoria micro)}
-lod addr micro = aumentarProgramCounter micro{acumuladorA = (!!) (memoria micro) (addr-1)}
---4.2 Desde la consola el programa seria: (divide.(lod 1).swap.(lod 2).(str 2 0).(str 1 2)) xt8088
+lod :: Int -> Micro -> Micro
+lod addr micro = micro{acumuladorA = (!!)(memoria micro) (addr - 1), programCounter = sumarProgramCounter micro}
