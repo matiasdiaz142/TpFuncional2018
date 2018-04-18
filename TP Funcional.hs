@@ -45,3 +45,5 @@ str addr val micro = micro {memoria = take (addr - 1) (memoria micro) ++ [val] +
 
 lod :: Int -> Micro -> Micro
 lod addr micro = micro{acumuladorA = (!!)(memoria micro) (addr - 1), programCounter = sumarProgramCounter micro}
+
+--Hola
