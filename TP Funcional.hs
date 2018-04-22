@@ -47,3 +47,5 @@ lod :: Int -> Micro -> Micro
 lod addr micro = micro{acumuladorA = (!!)(memoria micro) (addr - 1), programCounter = sumarProgramCounter micro}
 
 --Hola
+
+hola = id
