@@ -49,3 +49,5 @@ lod addr micro = micro{acumuladorA = (!!)(memoria micro) (addr - 1), programCoun
 --Hola
 
 hola = id
+
+chau = [2..20]
