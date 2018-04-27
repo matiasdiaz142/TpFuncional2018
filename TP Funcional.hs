@@ -18,36 +18,27 @@ fp20   = Micro {memoria = [],acumuladorA = 7,acumuladorB = 24,programCounter = 0
 at8086 = Micro {memoria = [1..20],acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = ""}
 
 nop :: Micro -> Micro
-nop micro = micro{programCounter = sumarProgramCounter micro}
+nop micro = micro{programCounter = programCounter micro + 1}
  
 --Punto 3: Se probo haciendo (add.(lodv 22).swap.(lodv 10))fp20 se uso composicion
 lodv :: Int -> Micro -> Micro
-lodv val micro = micro{acumuladorA = val, programCounter =  sumarProgramCounter micro} 
+lodv val micro = nop micro{acumuladorA = val}
 
 swap :: Micro -> Micro 
-swap micro = micro {acumuladorA = acumuladorB micro, acumuladorB = acumuladorA micro, programCounter = sumarProgramCounter micro}
+swap micro = nop micro{acumuladorA = acumuladorB micro, acumuladorB = acumuladorA micro}
 
 add :: Micro -> Micro
-add micro = micro{acumuladorA = acumuladorA micro + acumuladorB micro, acumuladorB = 0, programCounter = sumarProgramCounter micro}
-
-sumarProgramCounter :: Micro -> Int
-sumarProgramCounter micro = (programCounter micro) + 1
+add micro = nop micro{acumuladorA = acumuladorA micro + acumuladorB micro, acumuladorB = 0}
 
 --Punto 4  Se probo haciendo (divide.(lod 1).swap.(lod 2).(str 2 0).(str 1 2)) xt8088 
 
 divide :: Micro -> Micro
 divide micro  
-	| acumuladorB micro == 0 = micro{programCounter = sumarProgramCounter micro, mensajeError = "Division By Zero"}
-	| otherwise = micro{acumuladorA = div (acumuladorA micro)(acumuladorB micro), acumuladorB = 0, programCounter = sumarProgramCounter micro}
+	| acumuladorB micro == 0 = nop micro{mensajeError = "Division By Zero"}
+	| otherwise = nop micro{acumuladorA = div (acumuladorA micro)(acumuladorB micro), acumuladorB = 0}
 		
 str :: Int -> Int -> Micro -> Micro
-str addr val micro = micro {memoria = take (addr - 1) (memoria micro) ++ [val] ++ drop addr(memoria micro), programCounter = sumarProgramCounter micro}
+str addr val micro = nop micro{memoria = take (addr - 1) (memoria micro) ++ [val] ++ drop addr(memoria micro)}
 
 lod :: Int -> Micro -> Micro
-lod addr micro = micro{acumuladorA = (!!)(memoria micro) (addr - 1), programCounter = sumarProgramCounter micro}
-
---Hola
-
-hola = id
-
-chau = [2..20]
+lod addr micro = nop micro{acumuladorA = (!!)(memoria micro) (addr - 1)}
