@@ -2,8 +2,8 @@ module TP where
 
 import Text.Show.Functions
 
--- Modelado de Datos 
--- Punto 1
+--Primera Entrega 
+--  Punto 1: Modelar micro
 data Micro = Micro{
 memoria :: [Int],
 acumuladorA :: Int,
@@ -50,10 +50,22 @@ lod addr micro = nop micro{acumuladorA = (!!)(memoria micro) (addr - 1)}
 --Punto 1: Carga de un programa
 cargarPrograma :: Instruccion -> Micro -> Micro
 cargarPrograma unPrograma micro = micro{programas = programas micro ++ [unPrograma]}
+
 --Punto 2: Ejecución de un programa
 ejecutar :: Micro -> Micro
 ejecutar micro = foldr ($) micro (programas micro)
+
 --Punto 3: IFNZ
+ifnz :: [Instruccion] -> Micro -> Micro
 ifnz listaInstrucciones micro
 	| (acumuladorA micro /= 0) = foldr ($) micro listaInstrucciones
 	| otherwise = micro
+
+--Punto 4: Depuración de un programa
+
+
+--Punto 5: Memoria ordenada
+
+
+--Punto 6: Memoria infinita
+--xt8088 = Micro {memoria = [0,0..],acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programas=[divide,(lod 1),swap,(lod 2),(str 2 0),(str 1 2)]} 
