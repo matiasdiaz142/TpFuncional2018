@@ -5,17 +5,19 @@ import Text.Show.Functions
 -- Modelado de Datos 
 -- Punto 1
 data Micro = Micro{
-	memoria :: [Int],
-	acumuladorA :: Int,
-	acumuladorB :: Int,
-	programCounter :: Int,
-	mensajeError :: String
+memoria :: [Int],
+acumuladorA :: Int,
+acumuladorB :: Int,
+programCounter :: Int,
+mensajeError :: String,
+programas :: [Instruccion]
 }deriving (Show)
+type Instruccion = Micro -> Micro
 
 -- Punto 2: Se probo haciendo (nop.nop.nop)xt8088, se uso composicion
-xt8088 = Micro {memoria = (replicate 1024 0),acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = ""} 
-fp20   = Micro {memoria = [],acumuladorA = 7,acumuladorB = 24,programCounter = 0,mensajeError = ""}
-at8086 = Micro {memoria = [1..20],acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = ""}
+xt8088 = Micro {memoria = (replicate 1024 0),acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programas=[divide,(lod 1),swap,(lod 2),(str 2 0),(str 1 2)]} 
+fp20   = Micro {memoria = [],acumuladorA = 7,acumuladorB = 24,programCounter = 0,mensajeError = "",programas=[]}
+at8086 = Micro {memoria = [1..20],acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programas=[]}
 
 nop :: Micro -> Micro
 nop micro = micro{programCounter = programCounter micro + 1}
@@ -33,7 +35,7 @@ add micro = nop micro{acumuladorA = acumuladorA micro + acumuladorB micro, acumu
 --Punto 4  Se probo haciendo (divide.(lod 1).swap.(lod 2).(str 2 0).(str 1 2)) xt8088 
 
 divide :: Micro -> Micro
-divide micro  
+divide micro 
 	| acumuladorB micro == 0 = nop micro{mensajeError = "Division By Zero"}
 	| otherwise = nop micro{acumuladorA = div (acumuladorA micro)(acumuladorB micro), acumuladorB = 0}
 		
@@ -43,4 +45,15 @@ str addr val micro = nop micro{memoria = take (addr - 1) (memoria micro) ++ [val
 lod :: Int -> Micro -> Micro
 lod addr micro = nop micro{acumuladorA = (!!)(memoria micro) (addr - 1)}
 
---hola
+--Segunda Entrega
+
+--Punto 1: Carga de un programa
+cargarPrograma :: Instruccion -> Micro -> Micro
+cargarPrograma unPrograma micro = micro{programas = programas micro ++ [unPrograma]}
+--Punto 2: Ejecución de un programa
+ejecutar :: Micro -> Micro
+ejecutar micro = foldr ($) micro (programas micro)
+--Punto 3: IFNZ
+ifnz listaInstrucciones micro
+	| (acumuladorA micro /= 0) = foldr ($) micro listaInstrucciones
+	| otherwise = micro
