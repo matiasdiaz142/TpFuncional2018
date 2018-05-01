@@ -42,3 +42,5 @@ str addr val micro = nop micro{memoria = take (addr - 1) (memoria micro) ++ [val
 
 lod :: Int -> Micro -> Micro
 lod addr micro = nop micro{acumuladorA = (!!)(memoria micro) (addr - 1)}
+
+--hola
