@@ -18,6 +18,7 @@ type Instruccion = Micro -> Micro
 xt8088 = Micro {memoria = (replicate 1024 0),acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programas=[divide,(lod 1),swap,(lod 2),(str 2 0),(str 1 2)]} 
 fp20   = Micro {memoria = [],acumuladorA = 7,acumuladorB = 24,programCounter = 0,mensajeError = "",programas=[]}
 at8086 = Micro {memoria = [1..20],acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programas=[]}
+matias = Micro {memoria = [2,5,1,0,10],acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programas=[]}
 
 nop :: Micro -> Micro
 nop micro = micro{programCounter = programCounter micro + 1}
@@ -62,10 +63,22 @@ ifnz listaInstrucciones micro
 	| otherwise = micro
 
 --Punto 4: Depuración de un programa
+depurar :: [Instruccion] -> Micro -> [Instruccion]
+depurar [] micro = []
+depurar (x:xs) micro 
+	| instruccionNecesaria x micro = [x] ++ (depurar xs micro)
+	| otherwise = depurar xs micro
+instruccionNecesaria unaInstruccion unMicro = (acumuladorA (unaInstruccion unMicro) /= 0) || (acumuladorB (unaInstruccion unMicro) /= 0) 
 
+--Ni idea si andaa jaja
 
 --Punto 5: Memoria ordenada
+tieneMemoriaOrdenada micro = memoriaOrdenada (memoria micro)
 
+memoriaOrdenada [x,y] = x <= y
+memoriaOrdenada (x:y:xs) 
+	| x <= y = memoriaOrdenada (y:xs)
+	| otherwise = False
 
 --Punto 6: Memoria infinita
 --xt8088 = Micro {memoria = [0,0..],acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programas=[divide,(lod 1),swap,(lod 2),(str 2 0),(str 1 2)]} 
