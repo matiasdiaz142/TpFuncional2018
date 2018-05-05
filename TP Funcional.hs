@@ -82,3 +82,5 @@ memoriaOrdenada (x:y:xs)
 
 --Punto 6: Memoria infinita
 --xt8088 = Micro {memoria = [0,0..],acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programas=[divide,(lod 1),swap,(lod 2),(str 2 0),(str 1 2)]} 
+
+--HOLAAASDASL
