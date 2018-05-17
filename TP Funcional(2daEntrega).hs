@@ -10,12 +10,14 @@ acumuladorA :: Int,
 acumuladorB :: Int,
 programCounter :: Int,
 mensajeError :: String,
-programa :: [Instruccion]
+programa :: Programa
 }deriving (Show)
 type Instruccion = Micro -> Micro
+type Programa = [Instruccion]
+
 
 -- Punto 2: Se probo haciendo (nop.nop.nop)xt8088, se uso composicion
-xt8088 = Micro {memoria = (replicate 1024 0),acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programa=division2Por0} 
+xt8088 = Micro {memoria = (replicate 1024 0),acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programa=[]} 
 fp20   = Micro {memoria = [],acumuladorA = 7,acumuladorB = 24,programCounter = 0,mensajeError = "",programa=[]}
 at8086 = Micro {memoria = [1..20],acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programa=[]}
 
@@ -50,17 +52,17 @@ lod addr micro = nop micro{acumuladorA = (!!)(memoria micro) (addr - 1)}
 --Segunda Entrega
 
 suma10y22 = [(lodv 10),swap,(lodv 22),add]
-division2Por0 = [ divide,(lod 1),swap,(lod 2),(str 2 0),(str 1 2)]
+division2Por0 = [ (str 1 2),(str 2 0),(lod 2),swap,(lod 1),divide]
 
 --Punto 1: Carga de un programa
-cargarPrograma :: [Instruccion] -> Micro -> Micro
+cargarPrograma :: Programa -> Micro -> Micro
 cargarPrograma unPrograma micro = micro{programa = programa micro ++ unPrograma}
 
 --Punto 2: Ejecución de un programa
 ejecutar :: Micro -> Micro
-ejecutar micro = funcionLoca micro (programa micro)
+ejecutar micro = aplicarListaAMicro micro (programa micro)
 
-funcionLoca micro listaInstrucciones = foldl (flip ($)) micro listaInstrucciones
+aplicarListaAMicro micro listaInstrucciones = foldl (flip ($)) micro listaInstrucciones
 
 hayError::Micro->Bool
 hayError = ((>0).length.mensajeError)
@@ -68,11 +70,11 @@ hayError = ((>0).length.mensajeError)
 --Punto 3: IFNZ
 ifnz :: [Instruccion] -> Micro -> Micro
 ifnz listaInstrucciones micro
-    | (acumuladorA micro /= 0) = funcionLoca micro listaInstrucciones
+    | (acumuladorA micro /= 0) = aplicarListaAMicro micro listaInstrucciones
     | otherwise = micro
 
 --Punto 4: Depuración de un programa
-depurar :: [Instruccion] -> Micro -> [Instruccion]
+depurar :: Programa -> Micro -> [Instruccion]
 depurar listaInstrucciones micro = filter (\f -> acumuladoresYMemoriaEnCero (f micro)) listaInstrucciones
 
 acumuladoresYMemoriaEnCero :: Micro -> Bool 
@@ -80,8 +82,10 @@ acumuladoresYMemoriaEnCero micro = (acumuladorA micro /= 0) || (acumuladorB micr
 --all (/=0) (memoria micro)
 
 --Punto 5: Memoria ordenada
+tieneMemoriaOrdenada :: Micro -> Bool
 tieneMemoriaOrdenada = memoriaOrdenada.memoria
 
+memoriaOrdenada :: (Ord a) => [a] -> Bool
 memoriaOrdenada [] = True
 memoriaOrdenada [_] = True
 memoriaOrdenada (x:y:xs) = x <= y && memoriaOrdenada (y:xs)
