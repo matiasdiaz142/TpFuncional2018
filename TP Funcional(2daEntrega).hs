@@ -61,8 +61,6 @@ ejecutar :: Micro -> Micro
 ejecutar micro = funcionLoca micro (programa micro)
 
 funcionLoca micro listaInstrucciones = foldl (flip ($)) micro listaInstrucciones
---Hacer una funcion auxiliar para ****foldr ($) micro (programa micro)****
---y usarla tambien en ifnz 
 
 hayError::Micro->Bool
 hayError = ((>0).length.mensajeError)
@@ -76,7 +74,6 @@ ifnz listaInstrucciones micro
 --Punto 4: Depuración de un programa
 depurar :: [Instruccion] -> Micro -> [Instruccion]
 depurar listaInstrucciones micro = filter (\f -> acumuladoresYMemoriaEnCero (f micro)) listaInstrucciones
---depurar (swap.nop.(lodv 133).(lodv 0).(str 1 3).(str 2 0)) xt8088
 
 acumuladoresYMemoriaEnCero :: Micro -> Bool 
 acumuladoresYMemoriaEnCero micro = (acumuladorA micro /= 0) || (acumuladorB micro /= 0) || (sum (memoria micro) /= 0)
