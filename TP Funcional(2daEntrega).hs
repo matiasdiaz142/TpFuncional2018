@@ -5,24 +5,24 @@ import Text.Show.Functions
 -- Primera Entrega 
 -- Punto 1
 data Micro = Micro{
-	memoria :: [Int],
-	acumuladorA :: Int,
-	acumuladorB :: Int,
-	programCounter :: Int,
-	mensajeError :: String,
-	programa :: [Instruccion]
+memoria :: [Int],
+acumuladorA :: Int,
+acumuladorB :: Int,
+programCounter :: Int,
+mensajeError :: String,
+programa :: [Instruccion]
 }deriving (Show)
 type Instruccion = Micro -> Micro
 
 -- Punto 2: Se probo haciendo (nop.nop.nop)xt8088, se uso composicion
-xt8088 = Micro {memoria = (replicate 1024 0),acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programa=[swap.divide.(lod 1).swap.(lod 2).(str 2 0).(str 1 2)]} 
-fp20   = Micro {memoria = [],acumuladorA = 7,acumuladorB = 24,programCounter = 0,mensajeError = "",programa=suma10y22}
+xt8088 = Micro {memoria = (replicate 1024 0),acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programa=division2Por0} 
+fp20   = Micro {memoria = [],acumuladorA = 7,acumuladorB = 24,programCounter = 0,mensajeError = "",programa=[]}
 at8086 = Micro {memoria = [1..20],acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programa=[]}
 
 nop :: Micro -> Micro
 nop micro 
-	|hayError micro = micro
-	|otherwise = micro{programCounter = programCounter micro + 1}
+    |hayError micro = micro
+    |otherwise = micro{programCounter = programCounter micro + 1}
  
 --Punto 3: Se probo haciendo (add.(lodv 22).swap.(lodv 10))fp20 se uso composicion
 lodv :: Int -> Micro -> Micro
@@ -38,9 +38,9 @@ add micro = nop micro{acumuladorA = acumuladorA micro + acumuladorB micro, acumu
 
 divide :: Micro -> Micro
 divide micro  
-	|acumuladorB micro == 0 = nop micro{mensajeError = "Division By Zero"}
-	|otherwise = nop micro{acumuladorA = div (acumuladorA micro)(acumuladorB micro), acumuladorB = 0}
-		
+    |acumuladorB micro == 0 = nop micro{mensajeError = "Division By Zero"}
+    |otherwise = nop micro{acumuladorA = div (acumuladorA micro)(acumuladorB micro), acumuladorB = 0}
+
 str :: Int -> Int -> Micro -> Micro
 str addr val micro = nop micro{memoria = take (addr - 1) (memoria micro) ++ [val] ++ drop addr(memoria micro)}
 
@@ -49,8 +49,8 @@ lod addr micro = nop micro{acumuladorA = (!!)(memoria micro) (addr - 1)}
 
 --Segunda Entrega
 
-suma10y22 = [add,(lodv 22),swap,(lodv 10)]
-division2Por0 = [swap,swap,swap,divide,(lod 1),swap,(lod 2),(str 2 0),(str 1 2)]
+suma10y22 = [(lodv 10),swap,(lodv 22),add]
+division2Por0 = [ divide,(lod 1),swap,(lod 2),(str 2 0),(str 1 2)]
 
 --Punto 1: Carga de un programa
 cargarPrograma :: [Instruccion] -> Micro -> Micro
@@ -58,7 +58,9 @@ cargarPrograma unPrograma micro = micro{programa = programa micro ++ unPrograma}
 
 --Punto 2: Ejecución de un programa
 ejecutar :: Micro -> Micro
-ejecutar micro = foldr ($) micro (programa micro)
+ejecutar micro = funcionLoca micro (programa micro)
+
+funcionLoca micro listaInstrucciones = foldl (flip ($)) micro listaInstrucciones
 --Hacer una funcion auxiliar para ****foldr ($) micro (programa micro)****
 --y usarla tambien en ifnz 
 
@@ -68,8 +70,8 @@ hayError = ((>0).length.mensajeError)
 --Punto 3: IFNZ
 ifnz :: [Instruccion] -> Micro -> Micro
 ifnz listaInstrucciones micro
-	| (acumuladorA micro /= 0) = foldr ($) micro listaInstrucciones
-	| otherwise = micro
+    | (acumuladorA micro /= 0) = funcionLoca micro listaInstrucciones
+    | otherwise = micro
 
 --Punto 4: Depuración de un programa
 depurar :: [Instruccion] -> Micro -> [Instruccion]
@@ -81,13 +83,11 @@ acumuladoresYMemoriaEnCero micro = (acumuladorA micro /= 0) || (acumuladorB micr
 --all (/=0) (memoria micro)
 
 --Punto 5: Memoria ordenada
-tieneMemoriaOrdenada micro = memoriaOrdenada (memoria micro)
+tieneMemoriaOrdenada = memoriaOrdenada.memoria
 
-memoriaOrdenada [x,y] = x <= y
-memoriaOrdenada (x:y:xs) 
-	| x <= y = memoriaOrdenada (y:xs)
-	| otherwise = False
---Evaluar el caso de si se tiene un solo elemento o el conjunto vacio
+memoriaOrdenada [] = True
+memoriaOrdenada [_] = True
+memoriaOrdenada (x:y:xs) = x <= y && memoriaOrdenada (y:xs)
 
 --Punto 6: Memoria infinita
 xtInfinito = Micro {memoria = [0,0..],acumuladorA = 0,acumuladorB = 0,programCounter = 0,mensajeError = "",programa=[]}
